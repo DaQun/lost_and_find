@@ -1,0 +1,154 @@
+// ============================================================
+// uni.scss — 全局主题变量 & 工具类
+// 本文件会被 uni-app 自动注入到每个 .vue 文件的 <style> 中，
+// 因此只放变量、mixin；不要写会产生实际 CSS 输出的选择器（避免重复注入）。
+// 需要输出全局样式请在 App.vue 的无 scoped <style> 里编写。
+// ============================================================
+
+// ------------------------------------------------------------
+// 主题色
+// ------------------------------------------------------------
+$primary:       #3B82F6;   // 品牌蓝
+$primary-light: #EFF6FF;   // 品牌蓝浅背景
+$primary-dark:  #2563EB;   // 品牌蓝深色（渐变用）
+
+$success:       #10B981;   // 成功绿
+$warning:       #F59E0B;   // 警告橙
+$danger:        #EF4444;   // 危险红
+$info:          #6B7280;   // 信息灰
+
+// ------------------------------------------------------------
+// 灰阶
+// ------------------------------------------------------------
+$gray-50:  #F9FAFB;
+$gray-100: #F3F4F6;
+$gray-200: #E5E7EB;
+$gray-300: #D1D5DB;
+$gray-400: #9CA3AF;
+$gray-500: #6B7280;
+$gray-600: #4B5563;
+$gray-700: #374151;
+$gray-800: #1F2937;
+$gray-900: #111827;
+
+// ------------------------------------------------------------
+// 圆角
+// ------------------------------------------------------------
+$radius-xs: 8rpx;
+$radius-sm: 12rpx;
+$radius-md: 16rpx;
+$radius-lg: 24rpx;
+$radius-xl: 32rpx;
+$radius-full: 9999rpx;
+
+// ------------------------------------------------------------
+// 阴影
+// ------------------------------------------------------------
+$shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+$shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.10);
+$shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+$shadow-primary: 0 8rpx 24rpx rgba(59, 130, 246, 0.35);
+
+// ------------------------------------------------------------
+// 字号
+// ------------------------------------------------------------
+$text-xs:   22rpx;
+$text-sm:   24rpx;
+$text-base: 28rpx;
+$text-md:   30rpx;
+$text-lg:   32rpx;
+$text-xl:   36rpx;
+$text-2xl:  40rpx;
+$text-3xl:  48rpx;
+$text-4xl:  56rpx;
+
+// ------------------------------------------------------------
+// 间距（与 Tailwind 对齐：1 单位 = 8rpx）
+// ------------------------------------------------------------
+$space-1: 8rpx;
+$space-2: 16rpx;
+$space-3: 24rpx;
+$space-4: 32rpx;
+$space-5: 40rpx;
+$space-6: 48rpx;
+$space-8: 64rpx;
+$space-10: 80rpx;
+
+// ------------------------------------------------------------
+// 页面安全区
+// ------------------------------------------------------------
+$page-padding-x: 32rpx;
+$page-padding-y: 24rpx;
+
+// ------------------------------------------------------------
+// TabBar 高度（用于 fixed 元素的 bottom 偏移）
+// ------------------------------------------------------------
+$tab-bar-height: 100rpx;
+
+// ------------------------------------------------------------
+// Mixins
+// ------------------------------------------------------------
+
+/// 单行文本溢出省略
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/// 多行文本溢出省略
+/// @param {Number} $lines - 显示行数
+@mixin text-clamp($lines: 2) {
+  display: -webkit-box;
+  -webkit-line-clamp: $lines;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/// Flex 水平垂直居中
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/// Flex 水平排列，垂直居中
+@mixin flex-row-center {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/// 卡片基础样式
+@mixin card($padding: 32rpx) {
+  background: #ffffff;
+  border-radius: $radius-lg;
+  padding: $padding;
+  box-shadow: $shadow-sm;
+}
+
+/// 主按钮
+@mixin btn-primary {
+  background: $primary;
+  color: #ffffff;
+  border-radius: $radius-md;
+  font-size: $text-lg;
+  font-weight: 600;
+
+  &::after {
+    border: none;
+  }
+}
+
+/// 输入框基础样式
+@mixin input-base {
+  background: $gray-50;
+  border: 2rpx solid $gray-200;
+  border-radius: $radius-md;
+  padding: 0 $space-3;
+  font-size: $text-md;
+  color: $gray-900;
+  height: 88rpx;
+  box-sizing: border-box;
+  width: 100%;
+}

@@ -1,0 +1,74 @@
+# ================================================================
+# Lost & Find – Local Development Services
+# Usage:
+#   docker compose up -d          # start all services
+#   docker compose down           # stop (keep volumes)
+#   docker compose down -v        # stop + delete volumes
+# ================================================================
+
+version: "3.9"
+
+services:
+  # --------------------------------------------------------------
+  # PostgreSQL 16
+  # --------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: lost_and_find_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: lost_and_find
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # Ensure UTF-8 locale
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lost_and_find"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - backend_net
+
+  # --------------------------------------------------------------
+  # Redis 7
+  # --------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: lost_and_find_redis
+    restart: unless-stopped
+    # Enable AOF persistence so data survives container restarts
+    command: redis-server --appendonly yes --appendfsync everysec
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    networks:
+      - backend_net
+
+# ----------------------------------------------------------------
+# Named volumes – persisted across container restarts
+# ----------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+
+# ----------------------------------------------------------------
+# Network shared by all backend services
+# ----------------------------------------------------------------
+networks:
+  backend_net:
+    driver: bridge

@@ -1,0 +1,116 @@
+// ================================================================
+// Prisma Schema — Lost & Find
+// ================================================================
+// Run `prisma generate` after changes to regenerate the client.
+// Run `prisma migrate dev --name <name>` to apply migrations.
+// ================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------------------
+// User
+// ----------------------------------------------------------------
+/// Represents an application user.
+/// Authentication is phone-based (OTP); email and WeChat OAuth
+/// are optional additional identity providers.
+model User {
+  id           String   @id @default(uuid())
+  /// E.164-formatted phone number, e.g. "+8613800138000"
+  phone        String?  @unique
+  email        String?  @unique
+  nickname     String?
+  avatarUrl    String?
+  /// FCM / APNs push token for notifications
+  pushToken    String?
+  /// WeChat OAuth openid
+  wechatOpenId String?  @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  qrCodes QrCode[]
+
+  @@map("users")
+}
+
+// ----------------------------------------------------------------
+// QrCode
+// ----------------------------------------------------------------
+/// A QR code owned by a user, attached to a physical item.
+/// Scanning the QR code leads a finder to a contact page.
+model QrCode {
+  id          String   @id @default(uuid())
+  userId      String
+  /// Short random token embedded in the QR URL
+  token       String   @unique
+  /// Human-friendly label, e.g. "My backpack"
+  label       String
+  /// Optional longer description visible to the finder
+  description String?
+  /// Emoji or icon identifier for UI display
+  icon        String?
+  /// Hex colour code used in UI theming
+  color       String?
+  /// Optional reward/incentive text shown to the finder
+  rewardText  String?
+  /// Whether the QR code is active (inactive codes show a disabled page)
+  isActive    Boolean  @default(true)
+  /// URL of the generated QR image (stored in object storage)
+  qrImageUrl  String?
+  /// Cumulative scan counter (best-effort, not transactional)
+  scanCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scanRecords ScanRecord[]
+  messages    ContactMessage[]
+
+  @@map("qr_codes")
+}
+
+// ----------------------------------------------------------------
+// ScanRecord
+// ----------------------------------------------------------------
+/// Immutable audit log entry created every time a QR code is scanned.
+model ScanRecord {
+  id        String   @id @default(uuid())
+  qrCodeId  String
+  /// IPv4 / IPv6 address of the scanner (may be null for privacy)
+  ipAddress String?
+  /// Raw User-Agent string of the scanner's browser / app
+  userAgent String?
+  scannedAt DateTime @default(now())
+
+  qrCode QrCode @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@map("scan_records")
+}
+
+// ----------------------------------------------------------------
+// ContactMessage
+// ----------------------------------------------------------------
+/// A message sent by a finder through the QR code landing page.
+model ContactMessage {
+  id            String   @id @default(uuid())
+  qrCodeId      String
+  /// Optional name the finder provides
+  finderName    String?
+  /// Optional contact information the finder provides (phone / WeChat / email)
+  finderContact String?
+  /// The message body (required)
+  message       String
+  /// Whether the owner has read this message
+  isRead        Boolean  @default(false)
+  createdAt     DateTime @default(now())
+
+  qrCode QrCode @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@map("contact_messages")
+}
