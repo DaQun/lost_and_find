@@ -669,7 +669,7 @@ onLoad((options) => {
 // ─── 内容区 ───────────────────────────────────────────────────────────────────
 
 .body-wrap {
-  padding: 8rpx 32rpx 0;
+  padding: 8rpx 32rpx calc(40rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 24rpx;
@@ -755,6 +755,7 @@ onLoad((options) => {
   display: flex;
   flex-direction: column;
   gap: 24rpx;
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .form-section__header {

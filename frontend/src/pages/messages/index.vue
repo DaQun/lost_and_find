@@ -858,6 +858,7 @@ onShow(async () => {
 
 .detail-inner {
   padding: 0 40rpx;
+  padding-bottom: calc(60rpx + env(safe-area-inset-bottom));
   display: flex;
   flex-direction: column;
   gap: 28rpx;

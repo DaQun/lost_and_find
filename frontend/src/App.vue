@@ -4,13 +4,17 @@ import { useAuthStore } from './stores/auth'
 import { useMessagesStore } from './stores/messages'
 
 onLaunch(() => {
+  // 从本地存储恢复 token 和用户信息（必须最先执行）
+  useAuthStore().init();
+});
+
+onShow(() => {
+  // 扫码落地页是公开的，不需要登录
+  if (isScanPage()) {
+    return
+  }
+
   const auth = useAuthStore()
-
-  // 第一步：从本地存储恢复 token 和用户信息（必须最先执行）
-  // 若不调用 init()，state 中的 accessToken 初始为 null，isLoggedIn 永远为 false
-  auth.init()
-
-  // 第二步：根据恢复结果决定跳转方向
   if (!auth.isLoggedIn) {
     uni.reLaunch({ url: '/pages/login/index' })
   } else {
@@ -20,9 +24,23 @@ onLaunch(() => {
   }
 })
 
-onShow(() => {
-  console.log('App Show')
-})
+function isScanPage(): boolean {
+  // #ifdef H5
+  if (window.location.pathname.includes('pages/scan/index')) {
+    return true
+  }
+  // #endif
+
+  // 非 H5 平台（如 App、小程序），通过 getCurrentPages 检测
+  const pages = getCurrentPages()
+  if (pages.length === 0) return false
+
+  const currentPage = pages[pages.length - 1]
+  const currentPath = currentPage?.route || ''
+  const currentQuery = currentPage?.options || {}
+
+  return currentPath === 'pages/scan/index' || !!currentQuery.token
+}
 
 onHide(() => {
   console.log('App Hide')
